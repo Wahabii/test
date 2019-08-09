@@ -1,4 +1,5 @@
-const auth = require('../middleware/auth');
+const admin =require('../middleware/admin');
+const auth =require('../middleware/auth');
 const Joi =require('joi');
 const mongoose=require('mongoose');
 const {Geners, validate}=require('../models/gener');
@@ -6,12 +7,13 @@ const express=require('express');
 const router=express.Router();
 
 
-router.get('/', async (req,res)=>{
+router.get('/',async (req , res)=>{
+//throw new Error('could not get the geners . ');
 const gener= await Geners.find().sort('name');
 res.send(gener);
 });
 
-router.post('/', async (req,res)=>{
+router.post('/', auth, async (req,res)=>{
 const {error} = validateGener(req.body);
 if (error) return res.status(400).send(error.details[0].message);
 
@@ -20,7 +22,7 @@ await gener.save();
 res.send(gener);
 });
 
-router.put('/:id', async (req,res) => {
+router.put('/:id',async (req,res) => {
 const {error} = validateGener(req.body);
 if (error) return res.status(400).send(error.details[0].message);
 
@@ -33,13 +35,13 @@ const gener= await Geners.findOneAndUpdate(req.params.id,{name: req.params.name,
  res.send(gener);
 });
 
-router.delete('/:id', async (req,res)=>{
+router.delete('/:id', [auth,admin], async (req,res)=>{
 const gener= await Geners.findOneAndDelete(req.params.id);
 if(!gener) return res.status(404).send('gener with the given id is not fond ');
 res.send(gener);
 });
 
-router.get('/:id', async (req,res)=>{
+router.get('/:id',async (req,res)=>{
 const gener= await Geners.findById(req.params.id);
 if(!gener) return res.status(404).send('gener with the given id is not fond'); 
 res.send(gener);
