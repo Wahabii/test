@@ -1,10 +1,11 @@
 const winston =require('winston');
 const mongoose=require('mongoose');
-
+const config=require('config');
 
 module.exports=function(){
-    mongoose.connect('mongodb://localhost/playground')
-    .then(()=> winston.info('connected with mongodb'));
-    
+    const db=config.get('db');
+    mongoose.connect(db,{ useNewUrlParser: true })
+    .then(()=> winston.info(`connected with mongodb ${db}`));
+    mongoose.set('useCreateIndex', true);
 
 }
